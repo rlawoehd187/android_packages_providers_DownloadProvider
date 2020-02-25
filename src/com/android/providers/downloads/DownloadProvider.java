@@ -42,7 +42,6 @@ import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
@@ -927,6 +926,8 @@ public final class DownloadProvider extends ContentProvider {
              final String selection, final String[] selectionArgs,
              final String sort) {
 
+        Helpers.validateSelection(selection, sAppReadableColumnsSet);
+
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         int match = sURIMatcher.match(uri);
@@ -973,10 +974,7 @@ public final class DownloadProvider extends ContentProvider {
             logVerboseQueryInfo(projection, selection, selectionArgs, sort, db);
         }
 
-        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-        builder.setTables(DB_TABLE);
-        builder.setStrict(true);
-        Cursor ret = builder.query(db, projection, fullSelection.getSelection(),
+        Cursor ret = db.query(DB_TABLE, projection, fullSelection.getSelection(),
                 fullSelection.getParameters(), null, null, sort);
 
         if (ret != null) {
